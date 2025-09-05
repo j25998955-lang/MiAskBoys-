@@ -982,7 +982,386 @@
         <p>© 2023 Todos los derechos reservados</p>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script
+        // --- INICIO CÓDIGO SUPABASE ---
+        // 1. Configuración del cliente Supabase
+        const SUPABASE_URL = 'https://sbwlsnsosfqpqdmrsvog.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNid2xzbnNvc2ZxcHFkbXJzdm9nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcwMjA2NTAsImV4cCI6MjA3MjU5NjY1MH0.O4aSCJVG9WLOcuuWkx-WtBBsN3BqjLvCohcW1mPnz9s';
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // 2. Variables del estado de la aplicación
+        let allQuestions = [];
+        let currentUser = {};
+        let currentView = 'recent';
+        let currentPage = 1;
+        const PAGE_SIZE = 5;
+        let unreadNotifications = 0;
+        
+        // Mantener las lógicas de moneda y recompensas por ahora
+        const COINS_FOR_QUESTION = 60;
+        const COINS_FOR_ANSWER = 30;
+        const COINS_FOR_TIP = 10;
+        const STARTING_COINS = 100;
+        const STARTING_REACTION_POINTS = 0;
+        const MIN_QUESTION_LENGTH = 10;
+        const MIN_ANSWER_LENGTH = 5;
+        const REACTION_POINTS_PER_REACTION = 10;
+
+        // Definición de las insignias y avatares (pueden ser migradas a Supabase)
+        const availableBadges = [
+            { id: 'novice', name: 'Novato', icon: 'fas fa-seedling', reactionPointsCost: 0 },
+            { id: 'helper', name: 'Ayudante', icon: 'fas fa-hands-helping', reactionPointsCost: 50 },
+            { id: 'expert', name: 'Experto', icon: 'fas fa-star', reactionPointsCost: 150 },
+            { id: 'veteran', name: 'Veterano', icon: 'fas fa-chess-knight', reactionPointsCost: 300 },
+            { id: 'legend', name: 'Leyenda', icon: 'fas fa-crown', reactionPointsCost: 500 },
+            { id: 'master', name: 'Maestro', icon: 'fas fa-gem', reactionPointsCost: 1000 },
+            { id: 'founder', name: 'Fundador', icon: 'fas fa-medal', reactionPointsCost: 2000 }
+        ];
+        const availableAvatars = [
+            { id: 'initial', type: 'initial', cost: 0 },
+            { id: 'user1', type: 'image', src: 'https://cdn-icons-png.flaticon.com/512/616/616438.png', cost: 100 },
+            { id: 'user2', type: 'image', src: 'https://cdn-icons-png.flaticon.com/512/616/616440.png', cost: 150 },
+            { id: 'user3', type: 'image', src: 'https://cdn-icons-png.flaticon.com/512/616/616442.png', cost: 120 },
+            { id: 'user4', type: 'image', src: 'https://cdn-icons-png.flaticon.com/512/616/616444.png', cost: 130 },
+            { id: 'user5', type: 'image', src: 'https://cdn-icons-png.flaticon.com/512/616/616445.png', cost: 200 },
+            { id: 'user6', type: 'image', src: 'https://cdn-icons-png.flaticon.com/512/616/616446.png', cost: 250 }
+        ];
+
+        // 3. Funciones auxiliares
+        function getFormattedDate(date) {
+            const options = { day: '2-digit', month: 'short', year: 'numeric' };
+            return new Date(date).toLocaleDateString('es-ES', options).replace(/\./g, '');
+        }
+
+        function showNotification(message, isError = false) {
+            const notification = document.getElementById('notification');
+            const notificationText = document.getElementById('notificationText');
+            notificationText.textContent = message;
+            if (isError) {
+                notification.querySelector('i').className = 'fas fa-exclamation-circle';
+                notification.style.backgroundColor = '#d32f2f';
+            } else {
+                notification.querySelector('i').className = 'fas fa-check-circle';
+                notification.style.backgroundColor = '#1a3a6e';
+            }
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        function generateUniqueId() {
+            return 'user_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        async function initializeUser() {
+            let userId = localStorage.getItem('askboys_user_id');
+            if (!userId) {
+                userId = generateUniqueId();
+                localStorage.setItem('askboys_user_id', userId);
+            }
+            
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', userId)
+                .single();
+
+            if (error && error.code === 'PGRST116') { // No se encuentra el usuario, crearlo
+                const { data: newUser, error: createError } = await supabase
+                    .from('profiles')
+                    .insert([
+                        { id: userId, username: 'Anónimo', coins: STARTING_COINS, reaction_points: STARTING_REACTION_POINTS, badges: ['novice'], selected_avatar: 'initial', owned_avatars: ['initial'] }
+                    ])
+                    .select()
+                    .single();
+                
+                if (createError) {
+                    showNotification('Error al crear el perfil de usuario. Intenta recargar.', true);
+                    return;
+                }
+                currentUser = newUser;
+            } else if (error) {
+                showNotification('Error al cargar el perfil de usuario.', true);
+                return;
+            } else {
+                currentUser = data;
+            }
+            updateProfileUI();
+        }
+
+        async function updateProfileUI() {
+            if (!currentUser || !currentUser.id) {
+                document.getElementById('displayUserName').textContent = 'Anónimo';
+                document.getElementById('displayUserId').textContent = '...';
+                return;
+            }
+            document.getElementById('displayUserName').textContent = currentUser.username;
+            document.getElementById('displayUserId').textContent = currentUser.id;
+            document.getElementById('userName').value = currentUser.username === 'Anónimo' ? '' : currentUser.username;
+            document.getElementById('userCoins').textContent = currentUser.coins;
+            document.getElementById('userPoints').textContent = currentUser.reaction_points;
+            updateUserAvatar(document.getElementById('userAvatarLarge'), currentUser.selected_avatar, currentUser.username);
+            renderBadges();
+            renderAvatarShop();
+        }
+
+        function updateUserAvatar(element, avatarId, userName) {
+            element.innerHTML = '';
+            const avatar = availableAvatars.find(a => a.id === avatarId);
+            if (avatar && avatar.type === 'image') {
+                const img = document.createElement('img');
+                img.src = avatar.src;
+                img.alt = userName ? userName.charAt(0).toUpperCase() : '';
+                element.appendChild(img);
+            } else {
+                element.textContent = userName ? userName.charAt(0).toUpperCase() : '';
+            }
+        }
+
+        function renderBadges() {
+            const badgesList = document.getElementById('badgesList');
+            badgesList.innerHTML = '';
+            availableBadges.forEach(badge => {
+                const isOwned = currentUser.badges.includes(badge.id);
+                const li = document.createElement('li');
+                li.className = `badge-item ${isOwned ? 'owned' : ''}`;
+                li.setAttribute('data-badge-id', badge.id);
+                li.innerHTML = `
+                    <i class="${badge.icon} badge-icon"></i>
+                    <span class="badge-name">${badge.name}</span>
+                    ${!isOwned && badge.reactionPointsCost > 0 ? `<span class="badge-points-cost">(${badge.reactionPointsCost}<i class="fas fa-bolt"></i>)</span>` : ''}
+                `;
+                if (!isOwned && badge.reactionPointsCost > 0) {
+                    li.addEventListener('click', () => buyBadge(badge.id));
+                }
+                badgesList.appendChild(li);
+            });
+        }
+
+        async function buyBadge(badgeId) {
+            const badge = availableBadges.find(b => b.id === badgeId);
+            if (!badge) return;
+            
+            const { data: success, error: funcError } = await supabase.rpc('buy_item', {
+                _user_id: currentUser.id,
+                _item_id: badgeId,
+                _item_type: 'badge',
+                _cost: badge.reactionPointsCost,
+                _cost_currency: 'reaction_points'
+            });
+
+            if (funcError) {
+                console.error('Error al llamar a la función:', funcError);
+                showNotification('Error al comprar la insignia.', true);
+            } else if (success) {
+                currentUser.reaction_points -= badge.reactionPointsCost;
+                currentUser.badges = [...currentUser.badges, badgeId];
+                updateProfileUI();
+                showNotification(`¡Has comprado la insignia '${badge.name}'!`);
+            } else {
+                showNotification('No se pudo completar la compra. Revisa tus fondos o si ya tienes la insignia.', true);
+            }
+        }
+
+        function renderAvatarShop() {
+            const avatarShopList = document.getElementById('avatarShopList');
+            avatarShopList.innerHTML = '';
+            availableAvatars.forEach(avatar => {
+                const isOwned = currentUser.owned_avatars.includes(avatar.id);
+                const isSelected = currentUser.selected_avatar === avatar.id;
+                const li = document.createElement('li');
+                li.className = `avatar-shop-item ${isOwned ? 'owned' : ''} ${isSelected ? 'selected' : ''}`;
+                li.setAttribute('data-avatar-id', avatar.id);
+                let avatarContent;
+                if (avatar.type === 'image') {
+                    avatarContent = `<img src="${avatar.src}" alt="Avatar ${avatar.id}">`;
+                } else {
+                    avatarContent = `<span>${currentUser.username ? currentUser.username.charAt(0).toUpperCase() : ''}</span>`;
+                }
+                li.innerHTML = `
+                    <div class="avatar-preview">
+                        ${avatarContent}
+                    </div>
+                    ${!isOwned && avatar.cost > 0 ? `<span class="avatar-cost">${avatar.cost}🪙</span>` : ''}
+                `;
+                if (!isOwned && avatar.cost > 0) {
+                    li.addEventListener('click', () => buyAvatar(avatar.id));
+                } else {
+                    li.addEventListener('click', () => selectAvatar(avatar.id));
+                }
+                avatarShopList.appendChild(li);
+            });
+        }
+
+        async function buyAvatar(avatarId) {
+            const avatar = availableAvatars.find(a => a.id === avatarId);
+            if (!avatar) return;
+            
+            const { data: success, error: funcError } = await supabase.rpc('buy_item', {
+                _user_id: currentUser.id,
+                _item_id: avatarId,
+                _item_type: 'avatar',
+                _cost: avatar.cost,
+                _cost_currency: 'coins'
+            });
+            
+            if (funcError) {
+                console.error('Error al llamar a la función:', funcError);
+                showNotification('Error al comprar el avatar.', true);
+            } else if (success) {
+                currentUser.coins -= avatar.cost;
+                currentUser.owned_avatars = [...currentUser.owned_avatars, avatarId];
+                currentUser.selected_avatar = avatarId;
+                updateProfileUI();
+                showNotification('¡Has comprado y seleccionado el nuevo avatar!');
+                renderQuestions();
+            } else {
+                showNotification('No se pudo completar la compra. Revisa tus fondos o si ya tienes el avatar.', true);
+            }
+        }
+
+        async function selectAvatar(avatarId) {
+            if (!currentUser.owned_avatars.includes(avatarId)) {
+                showNotification('Debes comprar este avatar antes de seleccionarlo.', true);
+                return;
+            }
+            const { error } = await supabase
+                .from('profiles')
+                .update({ selected_avatar: avatarId })
+                .eq('id', currentUser.id);
+
+            if (error) {
+                showNotification('Error al seleccionar el avatar.', true);
+            } else {
+                currentUser.selected_avatar = avatarId;
+                updateProfileUI();
+                showNotification('¡Avatar seleccionado!');
+                renderQuestions();
+            }
+        }
+        
+        // --- Funciones para renderizar preguntas y respuestas ---
+        async function renderQuestions() {
+            const container = document.getElementById('questionsContainer');
+            const title = document.getElementById('questionsTitle');
+            container.innerHTML = '<h2>Cargando preguntas...</h2>';
+            
+            let query = supabase.from('preguntas').select('*, respuestas(*), profiles(username, selected_avatar, badges)');
+            
+            let questions;
+
+            switch (currentView) {
+                case 'popular':
+                    const { data: popularData, error: popularError } = await query;
+                    if (popularError) { showNotification(popularError.message, true); return; }
+                    questions = popularData.sort((a, b) => (b.likes + b.loves) - (a.likes + a.loves));
+                    title.textContent = 'Preguntas Más Populares';
+                    break;
+                case 'interaction':
+                    const { data: interactionData, error: interactionError } = await query;
+                    if (interactionError) { showNotification(interactionError.message, true); return; }
+                    questions = interactionData.sort((a, b) => (b.respuestas.length * 2 + b.likes + b.loves) - (a.respuestas.length * 2 + a.likes + a.loves));
+                    title.textContent = 'Preguntas con Más Interacción';
+                    break;
+                case 'my-questions':
+                    const { data: myQuestionsData, error: myQuestionsError } = await query.eq('creado_por', currentUser.id);
+                    if (myQuestionsError) { showNotification(myQuestionsError.message, true); return; }
+                    questions = myQuestionsData.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                    title.textContent = 'Tus Preguntas';
+                    break;
+                case 'recent':
+                default:
+                    const { data: recentData, error: recentError } = await query.order('created_at', { ascending: false });
+                    if (recentError) { showNotification(recentError.message, true); return; }
+                    questions = recentData;
+                    title.textContent = 'Preguntas de la Comunidad';
+                    break;
+            }
+            
+            allQuestions = questions;
+            
+            const startIndex = (currentPage - 1) * PAGE_SIZE;
+            const endIndex = startIndex + PAGE_SIZE;
+            const paginatedQuestions = questions.slice(startIndex, endIndex);
+
+            container.innerHTML = '';
+            
+            if (paginatedQuestions.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; margin-top: 50px;">
+                        <p style="font-size: 1.2rem; opacity: 0.8;">Aún no hay preguntas. ¡Sé el primero en hacer una!</p>
+                    </div>
+                `;
+            } else {
+                const { data: userReactions, error: reactionsError } = await supabase
+                    .from('user_reactions')
+                    .select('*')
+                    .eq('user_id', currentUser.id);
+                
+                const userReactedQuestions = userReactions ? userReactions.reduce((acc, reaction) => {
+                    acc[reaction.question_id] = reaction.reaction_type;
+                    return acc;
+                }, {}) : {};
+
+                paginatedQuestions.forEach(q => {
+                    const questionElement = document.createElement('div');
+                    questionElement.className = 'question';
+                    questionElement.setAttribute('data-id', q.id);
+                    questionElement.setAttribute('data-user-id', q.creado_por);
+                    
+                    const questionUser = q.profiles || { username: 'Anónimo', badges: [], selected_avatar: 'initial' };
+                    
+                    const questionBadgesHtml = questionUser.badges ? questionUser.badges.map(badgeId => {
+                        const badge = availableBadges.find(b => b.id === badgeId);
+                        return badge ? `<span class="user-badge" title="${badge.name}"><i class="${badge.icon}"></i></span>` : '';
+                    }).join('') : '';
+                    
+                    const userReaction = userReactedQuestions[q.id];
+                    const likeBtnClass = userReaction === 'likes' ? 'active' : '';
+                    const loveBtnClass = userReaction === 'loves' ? 'active' : '';
+
+                    let answersHtml = '';
+                    q.respuestas.forEach(a => {
+                        const answerUser = a.profiles || { username: a.user_name, badges: [], selected_avatar: 'initial' };
+                        const answerBadgesHtml = answerUser.badges ? answerUser.badges.map(badgeId => {
+                            const badge = availableBadges.find(b => b.id === badgeId);
+                            return badge ? `<span class="user-badge" title="${badge.name}"><i class="${badge.icon}"></i></span>` : '';
+                        }).join('') : '';
+
+                        const answerAvatarElement = document.createElement('div');
+                        answerAvatarElement.className = 'avatar';
+                        updateUserAvatar(answerAvatarElement, answerUser.selected_avatar, a.user_name);
+                        const answerAvatarHtml = answerAvatarElement.outerHTML;
+
+                        answersHtml += `
+                            <div class="answer" data-answer-id="${a.id}" data-user-id="${a.creado_por}">
+                                <div class="answer-header">
+                                    <div class="user-info">
+                                        ${answerAvatarHtml}
+                                        <span>${a.user_name}</span>
+                                        <div class="user-badges-container">${answerBadgesHtml}</div>
+                                    </div>
+                                    <span class="date">${getFormattedDate(a.created_at)}</span>
+                                </div>
+                                <p>${a.respuesta}</p>
+                                <button class="delete-answer-btn" data-answer-id="${a.id}" data-question-id="${q.id}" style="${a.creado_por !== currentUser.id ? 'display: none;' : ''}" title="Eliminar respuesta">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                                <div class="coin-btn-container" style="${a.creado_por === currentUser.id ? 'display: none;' : ''}">
+                                    <button class="coin-btn" data-type="answer" data-user-id="${a.creado_por}">🪙</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    const questionAvatarElement = document.createElement('div');
+                    questionAvatarElement.className = 'avatar';
+                    updateUserAvatar(questionAvatarElement, questionUser.selected_avatar, questionUser.username);
+                    const questionAvatarHtml = questionAvatarElement.outerHTML;
+                    
+                    questionElement.innerHTML = `
+                        <button class="delete-btn" data-id="${q.id}" style="${q.creado_por !== currentUser.id ? 'dis
     <script>
         // --- INICIO CÓDIGO SUPABASE ---
         // 1. Configuración del cliente Supabase
