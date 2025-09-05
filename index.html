@@ -1,0 +1,1772 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASKBOYS - Preguntas y Respuestas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Base y Tipografía */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #0a1930;
+            color: #ffffff;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            flex-grow: 1;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, #1a3a6e, #0a1930);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: #4fc3f7;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .tagline {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        /* Layout Principal */
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 2rem;
+            justify-content: center;
+        }
+
+        .user-section, .ask-section, .questions-section, .auth-section {
+            background-color: #1a3a6e;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .user-section, .ask-section {
+            flex: 1;
+            min-width: 300px;
+            max-width: 400px;
+        }
+        
+        .auth-section {
+            flex-basis: 100%;
+            max-width: 500px;
+            margin: 2rem auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .questions-section {
+            flex: 2;
+            min-width: 300px;
+            max-width: 780px;
+        }
+        
+        /* Títulos de Sección */
+        h2 {
+            color: #4fc3f7;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #4fc3f7;
+            text-align: center;
+        }
+
+        /* Formularios */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .error-message {
+            color: #f44336;
+            font-size: 0.9rem;
+            margin-top: -10px;
+            margin-bottom: 10px;
+            display: none;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            background-color: #0a1930;
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        /* Botones */
+        .btn {
+            background: linear-gradient(135deg, #4fc3f7, #0288d1);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: block;
+            width: 100%;
+            text-align: center;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #78909c, #546e7a);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #f44336, #d32f2f);
+        }
+        
+        .btn-link {
+            background: none;
+            border: none;
+            color: #4fc3f7;
+            cursor: pointer;
+            font-size: 0.9rem;
+            padding: 0;
+            margin-top: 10px;
+        }
+
+        /* Preguntas y Respuestas */
+        .question {
+            background-color: #152642;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            color: #4fc3f7;
+            font-weight: 500;
+            flex-wrap: wrap;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4fc3f7, #0288d1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            text-transform: uppercase;
+            overflow: hidden;
+            font-size: 1.5rem;
+        }
+        
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .question-content {
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .question-image {
+            max-width: 100%;
+            border-radius: 8px;
+            margin-top: 1rem;
+            max-height: 300px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .answers {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #2a4a7e;
+        }
+
+        .answer {
+            background-color: #1c3e6e;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .answer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            color: #4fc3f7;
+            font-size: 0.9rem;
+            flex-wrap: wrap;
+        }
+
+        .add-answer {
+            margin-top: 1rem;
+        }
+
+        .answer-form {
+            display: none;
+            margin-top: 1rem;
+        }
+
+        /* Reacciones */
+        .reactions {
+            display: flex;
+            gap: 15px;
+            margin-top: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .reaction-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .reaction-btn {
+            background: none;
+            border: none;
+            color: #aaa;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: color 0.2s, background-color 0.2s;
+            font-size: 0.9rem;
+            padding: 5px 10px;
+            border-radius: 20px;
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+        
+        .reaction-btn[disabled] {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .reaction-btn:hover:not([disabled]) {
+            color: #4fc3f7;
+            background-color: rgba(79, 195, 247, 0.1);
+        }
+
+        .reaction-btn.active {
+            color: #4fc3f7;
+            background-color: rgba(79, 195, 247, 0.2);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            background-color: #0a1425;
+            color: #4fc3f7;
+            border-radius: 10px 10px 0 0;
+            margin-top: auto;
+        }
+
+        /* Perfil de Usuario */
+        .user-profile {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .user-avatar-large {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4fc3f7, #0288d1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 0 auto 1rem;
+            text-transform: uppercase;
+            overflow: hidden;
+        }
+
+        .user-avatar-large img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .user-id {
+            background-color: #0a1930;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            display: inline-block;
+            margin-top: 5px;
+        }
+
+        /* Imagen de Pregunta */
+        .image-upload {
+            margin: 1rem 0;
+            text-align: center;
+        }
+
+        .image-preview {
+            max-width: 100%;
+            margin-top: 10px;
+            border-radius: 8px;
+            display: none;
+            max-height: 200px;
+            object-fit: cover;
+        }
+
+        /* Botones de Eliminar */
+        .delete-btn, .delete-answer-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(211, 47, 47, 0.2);
+            color: #f44336;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+            z-index: 5;
+        }
+        
+        .delete-answer-btn {
+            top: 10px;
+            right: 10px;
+        }
+
+        .delete-btn:hover, .delete-answer-btn:hover {
+            opacity: 1;
+        }
+
+        /* Selectores de Vista */
+        .view-selector {
+            display: flex;
+            margin-bottom: 20px;
+            background-color: #1a3a6e;
+            border-radius: 10px;
+            overflow: hidden;
+            justify-content: center;
+        }
+
+        .view-option {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            max-width: 200px;
+        }
+
+        .view-option.active {
+            background-color: #4fc3f7;
+            color: #0a1930;
+            font-weight: 600;
+        }
+
+        /* Notificaciones */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background: #1a3a6e;
+            color: white;
+            border-radius: 5px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            transform: translateX(100%);
+            opacity: 0;
+            transition: transform 0.3s, opacity 0.3s;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .notification-icon-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+        .notification-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .notification-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #d32f2f;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        .notification-panel {
+            position: absolute;
+            top: 50px;
+            right: 10px;
+            width: 300px;
+            max-height: 400px;
+            background-color: #1a3a6e;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            display: none;
+            z-index: 900;
+            overflow-y: auto;
+        }
+
+        .notification-panel.show {
+            display: block;
+        }
+
+        .notification-item {
+            padding: 15px;
+            border-bottom: 1px solid #2a4a7e;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .notification-item:hover {
+            background-color: #152642;
+        }
+
+        .notification-item.unread {
+            font-weight: bold;
+            background-color: #1c3e6e;
+        }
+
+        /* Contadores de Interacción */
+        .interaction-count {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+
+        .interaction-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        /* Monedas */
+        .coin-container {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: bold;
+            color: #fdd835;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .coin-icon {
+            font-size: 1.2rem;
+            text-shadow: 0 0 5px rgba(253, 216, 53, 0.5);
+        }
+        
+        /* Puntos de Reacción */
+        .points-container {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: bold;
+            color: #ff914d;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .points-icon {
+            font-size: 1.2rem;
+            text-shadow: 0 0 5px rgba(255, 145, 77, 0.5);
+        }
+
+        .coin-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+            line-height: 1;
+            display: inline-block;
+            width: auto;
+            padding: 0;
+        }
+        
+        .coin-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Movil */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            z-index: 10;
+        }
+
+        .mobile-tabs {
+            display: none;
+            background-color: #1a3a6e;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .mobile-tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .mobile-tab.active {
+            background-color: #4fc3f7;
+            color: #0a1930;
+            font-weight: 600;
+        }
+
+        /* Paginación */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 2rem;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .pagination-btn {
+            background-color: #1a3a6e;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .pagination-btn.active {
+            background-color: #4fc3f7;
+            color: #0a1930;
+            font-weight: 600;
+        }
+
+        .pagination-btn:hover:not(.active) {
+            background-color: #2a4a7e;
+        }
+
+        /* Insignias */
+        .badges-list {
+            list-style: none;
+            padding: 0;
+            margin-top: 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .badge-item {
+            background-color: #0a1930;
+            padding: 8px 15px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s, background-color 0.2s;
+            cursor: pointer;
+        }
+
+        .badge-item:hover {
+            transform: translateY(-2px);
+        }
+
+        .badge-icon {
+            font-size: 1.2rem;
+        }
+
+        .badge-name {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .badge-cost {
+            font-size: 0.8rem;
+            color: #fdd835;
+        }
+        
+        .badge-points-cost {
+            font-size: 0.8rem;
+            color: #ff914d;
+        }
+
+        .badge-item.owned {
+            background-color: #4fc3f7;
+            color: #0a1930;
+        }
+
+        .badge-item.owned .badge-cost {
+            display: none;
+        }
+
+        .badge-item.owned .badge-points-cost {
+            display: none;
+        }
+
+        .user-badges-container {
+            display: flex;
+            gap: 5px;
+            margin-left: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .user-badge {
+            background-color: #4fc3f7;
+            color: #0a1930;
+            border-radius: 5px;
+            padding: 2px 5px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* Tienda de Avatares */
+        .avatar-shop-list {
+            list-style: none;
+            padding: 0;
+            margin-top: 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .avatar-shop-item {
+            background-color: #0a1930;
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: transform 0.2s, box-shadow 0.2s, border 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .avatar-shop-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 12px rgba(0,0,0,0.4);
+        }
+
+        .avatar-shop-item.selected {
+            border-color: #4fc3f7;
+            background-color: #152642;
+        }
+
+        .avatar-shop-item.owned {
+            border-color: #0288d1;
+            background-color: #152642;
+        }
+
+        .avatar-shop-item .avatar-preview {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4fc3f7, #0288d1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin: 0 auto 8px;
+            overflow: hidden;
+        }
+
+        .avatar-shop-item .avatar-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .avatar-shop-item .avatar-cost {
+            font-size: 0.9rem;
+            color: #fdd835;
+            display: block;
+            margin-top: 5px;
+        }
+
+        .avatar-shop-item.owned .avatar-cost {
+            display: none;
+        }
+
+        /* Media Queries para Responsive Design */
+        @media (max-width: 900px) {
+            .main-content {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .user-section, .ask-section, .questions-section, .auth-section {
+                width: 95%;
+                max-width: 600px;
+            }
+
+            h1 {
+                font-size: 2.2rem;
+            }
+
+            .view-selector {
+                display: none;
+            }
+
+            .mobile-tabs {
+                display: flex;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            header {
+                padding-left: 60px;
+            }
+
+            .question-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .reactions {
+                flex-wrap: wrap;
+            }
+
+            /* Oculta las secciones por defecto en móvil */
+            .user-section, .ask-section, .questions-section {
+                display: none;
+            }
+
+            /* Muestra la sección activa en móvil */
+            .user-section.active, .ask-section.active, .questions-section.active {
+                display: block;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 10px;
+            }
+
+            header {
+                padding: 1rem;
+                padding-left: 50px;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .tagline {
+                font-size: 1rem;
+            }
+
+            .user-section, .ask-section, .questions-section, .auth-section {
+                padding: 1rem;
+                width: 100%;
+            }
+
+            .btn {
+                padding: 10px 20px;
+            }
+
+            .pagination {
+                flex-wrap: wrap;
+            }
+
+            .avatar-shop-item .avatar-preview {
+                width: 50px;
+                height: 50px;
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <button class="mobile-menu-btn" id="mobileMenuBtn">
+            <i class="fas fa-bars"></i>
+        </button>
+        <h1>ASKBOYS</h1>
+        <p class="tagline">Pregunta, responde y conecta con la comunidad</p>
+        <div class="notification-icon-container">
+            <button id="notificationBtn" class="notification-btn" title="Notificaciones">
+                <i class="fas fa-bell"></i>
+                <span id="notificationCount" class="notification-count" style="display: none;">0</span>
+            </button>
+            <div id="notificationPanel" class="notification-panel"></div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div id="appContent">
+            <div class="view-selector">
+                <div class="view-option active" data-view="recent">Más Recientes</div>
+                <div class="view-option" data-view="popular">Más Populares</div>
+                <div class="view-option" data-view="interaction">Más Interacción</div>
+                <div class="view-option" data-view="my-questions">Tus Preguntas</div>
+            </div>
+
+            <div class="mobile-tabs">
+                <div class="mobile-tab active" data-tab="questions">Preguntas</div>
+                <div class="mobile-tab" data-tab="ask">Preguntar</div>
+                <div class="mobile-tab" data-tab="profile">Perfil</div>
+                <div class="mobile-tab" data-tab="my-questions">Mis Preguntas</div>
+            </div>
+
+            <div class="main-content">
+                <section class="user-section active" id="userSection">
+                    <div class="user-profile">
+                        <div class="user-avatar-large" id="userAvatarLarge"></div>
+                        <h3 id="displayUserName">Usuario</h3>
+                        <div class="user-id">ID: <span id="displayUserId">...</span></div>
+                        <div class="coin-container">
+                            <span class="coin-icon">🪙</span>
+                            <span id="userCoins">0</span>
+                        </div>
+                        <div class="points-container">
+                            <span class="points-icon"><i class="fas fa-bolt"></i></span>
+                            <span id="userPoints">0</span>
+                        </div>
+                    </div>
+
+                    <h2>Tu Perfil</h2>
+                    <form id="userForm">
+                        <div class="form-group">
+                            <label for="userName">Tu Nombre:</label>
+                            <input type="text" id="userName" placeholder="¿Cómo te llamas?" required>
+                        </div>
+                        <button type="submit" class="btn">Guardar Perfil</button>
+                    </form>
+
+                    <hr style="border-color: #2a4a7e; margin: 1.5rem 0;">
+
+                    <h2>Tienda de Insignias</h2>
+                    <ul id="badgesList" class="badges-list"></ul>
+
+                    <hr style="border-color: #2a4a7e; margin: 1.5rem 0;">
+
+                    <h2>Tienda de Avatares</h2>
+                    <ul id="avatarShopList" class="avatar-shop-list"></ul>
+                </section>
+
+                <section class="ask-section" id="askSection">
+                    <h2>Haz una Pregunta</h2>
+                    <form id="askForm">
+                        <div class="form-group">
+                            <label for="questionText">Tu Pregunta:</label>
+                            <textarea id="questionText" placeholder="Escribe tu pregunta aquí..." required></textarea>
+                            <div class="error-message" id="questionTextError"></div>
+                        </div>
+                        <div class="image-upload">
+                            <label for="questionImage" class="btn btn-secondary">
+                                <i class="fas fa-image"></i> Agregar Imagen
+                            </label>
+                            <input type="file" id="questionImage" accept="image/*" style="display: none;">
+                            <img id="imagePreview" class="image-preview" alt="Vista previa de la imagen">
+                        </div>
+                        <button type="submit" class="btn">Publicar Pregunta</button>
+                    </form>
+                </section>
+            </div>
+
+            <section class="questions-section" id="questionsSection">
+                <h2 id="questionsTitle">Preguntas de la Comunidad</h2>
+                <div id="questionsContainer"></div>
+                <div class="pagination" id="pagination"></div>
+            </section>
+        </div>
+    </div>
+
+    <div id="notification" class="notification">
+        <i class="fas fa-check-circle"></i> <span id="notificationText">Operación realizada con éxito</span>
+    </div>
+
+    <footer>
+        <p>ASKBOYS - Conectando a través de preguntas y respuestas</p>
+        <p>© 2023 Todos los derechos reservados</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // --- INICIO CÓDIGO SUPABASE ---
+        // 1. Configuración del cliente Supabase
+        const SUPABASE_URL = 'https://sbwlsnsosfqpqdmrsvog.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNid2xzbnNvc2ZxcHFkbXJzdm9nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcwMjA2NTAsImV4cCI6MjA3MjU5NjY1MH0.O4aSCJVG9WLOcuuWkx-WtBBsN3BqjLvCohcW1mPnz9s';
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // 2. Variables del estado de la aplicación
+        let allQuestions = [];
+        let currentUser = {};
+        let currentView = 'recent';
+        let currentPage = 1;
+        const PAGE_SIZE = 5;
+        let unreadNotifications = 0;
+        
+        // Mantener las lógicas de moneda y recompensas por ahora
+        const COINS_FOR_QUESTION = 60;
+        const COINS_FOR_ANSWER = 30;
+        const COINS_FOR_TIP = 10;
+        const STARTING_COINS = 100;
+        const STARTING_REACTION_POINTS = 0;
+        const MIN_QUESTION_LENGTH = 10;
+        const MIN_ANSWER_LENGTH = 5;
+        const REACTION_POINTS_PER_REACTION = 10;
+
+        // Definición de las insignias y avatares (pueden ser migradas a Supabase)
+        const availableBadges = [
+            { id: 'novice', name: 'Novato', icon: 'fas fa-seedling', reactionPointsCost: 0 },
+            { id: 'helper', name: 'Ayudante', icon: 'fas fa-hands-helping', reactionPointsCost: 50 },
+            { id: 'expert', name: 'Experto', icon: 'fas fa-star', reactionPointsCost: 150 },
+            { id: 'veteran', name: 'Veterano', icon: 'fas fa-chess-knight', reactionPointsCost: 300 },
+            { id: 'legend', name: 'Leyenda', icon: 'fas fa-crown', reactionPointsCost: 500 },
+            { id: 'master', name: 'Maestro', icon: 'fas fa-gem', reactionPointsCost: 1000 },
+            { id: 'founder', name: 'Fundador', icon: 'fas fa-medal', reactionPointsCost: 2000 }
+        ];
+        const availableAvatars = [
+            { id: 'initial', type: 'initial', cost: 0 },
+            { id: 'user1', type: 'image', src: 'https://cdn-icons-png.flaticon.com/512/616/616438.png', cost: 100 },
+            { id: 'user2', type: 'image', src: 'https://cdn-icons-png.flaticon.com/512/616/616440.png', cost: 150 },
+            { id: 'user3', type: 'image', src: 'https://cdn-icons-png.flaticon.com/512/616/616442.png', cost: 120 },
+            { id: 'user4', type: 'image', src: 'https://cdn-icons-png.flaticon.com/512/616/616444.png', cost: 130 },
+            { id: 'user5', type: 'image', src: 'https://cdn-icons-png.flaticon.com/512/616/616445.png', cost: 200 },
+            { id: 'user6', type: 'image', src: 'https://cdn-icons-png.flaticon.com/512/616/616446.png', cost: 250 }
+        ];
+
+        // 3. Funciones auxiliares
+        function getFormattedDate(date) {
+            const options = { day: '2-digit', month: 'short', year: 'numeric' };
+            return new Date(date).toLocaleDateString('es-ES', options).replace(/\./g, '');
+        }
+
+        function showNotification(message, isError = false) {
+            const notification = document.getElementById('notification');
+            const notificationText = document.getElementById('notificationText');
+            notificationText.textContent = message;
+            if (isError) {
+                notification.querySelector('i').className = 'fas fa-exclamation-circle';
+                notification.style.backgroundColor = '#d32f2f';
+            } else {
+                notification.querySelector('i').className = 'fas fa-check-circle';
+                notification.style.backgroundColor = '#1a3a6e';
+            }
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        function generateUniqueId() {
+            return 'user_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        async function initializeUser() {
+            let userId = localStorage.getItem('askboys_user_id');
+            if (!userId) {
+                userId = generateUniqueId();
+                localStorage.setItem('askboys_user_id', userId);
+            }
+            
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', userId)
+                .single();
+
+            if (error && error.code === 'PGRST116') { // No se encuentra el usuario, crearlo
+                const { data: newUser, error: createError } = await supabase
+                    .from('profiles')
+                    .insert([
+                        { id: userId, username: 'Anónimo', coins: STARTING_COINS, reaction_points: STARTING_REACTION_POINTS, badges: ['novice'], selected_avatar: 'initial', owned_avatars: ['initial'] }
+                    ])
+                    .select()
+                    .single();
+                
+                if (createError) {
+                    showNotification('Error al crear el perfil de usuario. Intenta recargar.', true);
+                    return;
+                }
+                currentUser = newUser;
+            } else if (error) {
+                showNotification('Error al cargar el perfil de usuario.', true);
+                return;
+            } else {
+                currentUser = data;
+            }
+            updateProfileUI();
+        }
+
+        async function updateProfileUI() {
+            if (!currentUser || !currentUser.id) {
+                document.getElementById('displayUserName').textContent = 'Anónimo';
+                document.getElementById('displayUserId').textContent = '...';
+                return;
+            }
+            document.getElementById('displayUserName').textContent = currentUser.username;
+            document.getElementById('displayUserId').textContent = currentUser.id;
+            document.getElementById('userName').value = currentUser.username === 'Anónimo' ? '' : currentUser.username;
+            document.getElementById('userCoins').textContent = currentUser.coins;
+            document.getElementById('userPoints').textContent = currentUser.reaction_points;
+            updateUserAvatar(document.getElementById('userAvatarLarge'), currentUser.selected_avatar, currentUser.username);
+            renderBadges();
+            renderAvatarShop();
+        }
+
+        function updateUserAvatar(element, avatarId, userName) {
+            element.innerHTML = '';
+            const avatar = availableAvatars.find(a => a.id === avatarId);
+            if (avatar && avatar.type === 'image') {
+                const img = document.createElement('img');
+                img.src = avatar.src;
+                img.alt = userName ? userName.charAt(0).toUpperCase() : '';
+                element.appendChild(img);
+            } else {
+                element.textContent = userName ? userName.charAt(0).toUpperCase() : '';
+            }
+        }
+
+        function renderBadges() {
+            const badgesList = document.getElementById('badgesList');
+            badgesList.innerHTML = '';
+            availableBadges.forEach(badge => {
+                const isOwned = currentUser.badges.includes(badge.id);
+                const li = document.createElement('li');
+                li.className = `badge-item ${isOwned ? 'owned' : ''}`;
+                li.setAttribute('data-badge-id', badge.id);
+                li.innerHTML = `
+                    <i class="${badge.icon} badge-icon"></i>
+                    <span class="badge-name">${badge.name}</span>
+                    ${!isOwned && badge.reactionPointsCost > 0 ? `<span class="badge-points-cost">(${badge.reactionPointsCost}<i class="fas fa-bolt"></i>)</span>` : ''}
+                `;
+                if (!isOwned && badge.reactionPointsCost > 0) {
+                    li.addEventListener('click', () => buyBadge(badge.id));
+                }
+                badgesList.appendChild(li);
+            });
+        }
+
+        async function buyBadge(badgeId) {
+            const badge = availableBadges.find(b => b.id === badgeId);
+            if (!badge) return;
+            
+            const { data: success, error: funcError } = await supabase.rpc('buy_item', {
+                _user_id: currentUser.id,
+                _item_id: badgeId,
+                _item_type: 'badge',
+                _cost: badge.reactionPointsCost,
+                _cost_currency: 'reaction_points'
+            });
+
+            if (funcError) {
+                console.error('Error al llamar a la función:', funcError);
+                showNotification('Error al comprar la insignia.', true);
+            } else if (success) {
+                currentUser.reaction_points -= badge.reactionPointsCost;
+                currentUser.badges = [...currentUser.badges, badgeId];
+                updateProfileUI();
+                showNotification(`¡Has comprado la insignia '${badge.name}'!`);
+            } else {
+                showNotification('No se pudo completar la compra. Revisa tus fondos o si ya tienes la insignia.', true);
+            }
+        }
+
+        function renderAvatarShop() {
+            const avatarShopList = document.getElementById('avatarShopList');
+            avatarShopList.innerHTML = '';
+            availableAvatars.forEach(avatar => {
+                const isOwned = currentUser.owned_avatars.includes(avatar.id);
+                const isSelected = currentUser.selected_avatar === avatar.id;
+                const li = document.createElement('li');
+                li.className = `avatar-shop-item ${isOwned ? 'owned' : ''} ${isSelected ? 'selected' : ''}`;
+                li.setAttribute('data-avatar-id', avatar.id);
+                let avatarContent;
+                if (avatar.type === 'image') {
+                    avatarContent = `<img src="${avatar.src}" alt="Avatar ${avatar.id}">`;
+                } else {
+                    avatarContent = `<span>${currentUser.username ? currentUser.username.charAt(0).toUpperCase() : ''}</span>`;
+                }
+                li.innerHTML = `
+                    <div class="avatar-preview">
+                        ${avatarContent}
+                    </div>
+                    ${!isOwned && avatar.cost > 0 ? `<span class="avatar-cost">${avatar.cost}🪙</span>` : ''}
+                `;
+                if (!isOwned && avatar.cost > 0) {
+                    li.addEventListener('click', () => buyAvatar(avatar.id));
+                } else {
+                    li.addEventListener('click', () => selectAvatar(avatar.id));
+                }
+                avatarShopList.appendChild(li);
+            });
+        }
+
+        async function buyAvatar(avatarId) {
+            const avatar = availableAvatars.find(a => a.id === avatarId);
+            if (!avatar) return;
+            
+            const { data: success, error: funcError } = await supabase.rpc('buy_item', {
+                _user_id: currentUser.id,
+                _item_id: avatarId,
+                _item_type: 'avatar',
+                _cost: avatar.cost,
+                _cost_currency: 'coins'
+            });
+            
+            if (funcError) {
+                console.error('Error al llamar a la función:', funcError);
+                showNotification('Error al comprar el avatar.', true);
+            } else if (success) {
+                currentUser.coins -= avatar.cost;
+                currentUser.owned_avatars = [...currentUser.owned_avatars, avatarId];
+                currentUser.selected_avatar = avatarId;
+                updateProfileUI();
+                showNotification('¡Has comprado y seleccionado el nuevo avatar!');
+                renderQuestions();
+            } else {
+                showNotification('No se pudo completar la compra. Revisa tus fondos o si ya tienes el avatar.', true);
+            }
+        }
+
+        async function selectAvatar(avatarId) {
+            if (!currentUser.owned_avatars.includes(avatarId)) {
+                showNotification('Debes comprar este avatar antes de seleccionarlo.', true);
+                return;
+            }
+            const { error } = await supabase
+                .from('profiles')
+                .update({ selected_avatar: avatarId })
+                .eq('id', currentUser.id);
+
+            if (error) {
+                showNotification('Error al seleccionar el avatar.', true);
+            } else {
+                currentUser.selected_avatar = avatarId;
+                updateProfileUI();
+                showNotification('¡Avatar seleccionado!');
+                renderQuestions();
+            }
+        }
+        
+        // --- Funciones para renderizar preguntas y respuestas ---
+        async function renderQuestions() {
+            const container = document.getElementById('questionsContainer');
+            const title = document.getElementById('questionsTitle');
+            container.innerHTML = '<h2>Cargando preguntas...</h2>';
+            
+            let query = supabase.from('preguntas').select('*, respuestas(*), profiles(username, selected_avatar, badges)');
+            
+            let questions;
+
+            switch (currentView) {
+                case 'popular':
+                    const { data: popularData, error: popularError } = await query;
+                    if (popularError) { showNotification(popularError.message, true); return; }
+                    questions = popularData.sort((a, b) => (b.likes + b.loves) - (a.likes + a.loves));
+                    title.textContent = 'Preguntas Más Populares';
+                    break;
+                case 'interaction':
+                    const { data: interactionData, error: interactionError } = await query;
+                    if (interactionError) { showNotification(interactionError.message, true); return; }
+                    questions = interactionData.sort((a, b) => (b.respuestas.length * 2 + b.likes + b.loves) - (a.respuestas.length * 2 + a.likes + a.loves));
+                    title.textContent = 'Preguntas con Más Interacción';
+                    break;
+                case 'my-questions':
+                    const { data: myQuestionsData, error: myQuestionsError } = await query.eq('creado_por', currentUser.id);
+                    if (myQuestionsError) { showNotification(myQuestionsError.message, true); return; }
+                    questions = myQuestionsData.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                    title.textContent = 'Tus Preguntas';
+                    break;
+                case 'recent':
+                default:
+                    const { data: recentData, error: recentError } = await query.order('created_at', { ascending: false });
+                    if (recentError) { showNotification(recentError.message, true); return; }
+                    questions = recentData;
+                    title.textContent = 'Preguntas de la Comunidad';
+                    break;
+            }
+            
+            allQuestions = questions;
+            
+            const startIndex = (currentPage - 1) * PAGE_SIZE;
+            const endIndex = startIndex + PAGE_SIZE;
+            const paginatedQuestions = questions.slice(startIndex, endIndex);
+
+            container.innerHTML = '';
+            
+            if (paginatedQuestions.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; margin-top: 50px;">
+                        <p style="font-size: 1.2rem; opacity: 0.8;">Aún no hay preguntas. ¡Sé el primero en hacer una!</p>
+                    </div>
+                `;
+            } else {
+                const { data: userReactions, error: reactionsError } = await supabase
+                    .from('user_reactions')
+                    .select('*')
+                    .eq('user_id', currentUser.id);
+                
+                const userReactedQuestions = userReactions ? userReactions.reduce((acc, reaction) => {
+                    acc[reaction.question_id] = reaction.reaction_type;
+                    return acc;
+                }, {}) : {};
+
+                paginatedQuestions.forEach(q => {
+                    const questionElement = document.createElement('div');
+                    questionElement.className = 'question';
+                    questionElement.setAttribute('data-id', q.id);
+                    questionElement.setAttribute('data-user-id', q.creado_por);
+                    
+                    const questionUser = q.profiles || { username: 'Anónimo', badges: [], selected_avatar: 'initial' };
+                    
+                    const questionBadgesHtml = questionUser.badges ? questionUser.badges.map(badgeId => {
+                        const badge = availableBadges.find(b => b.id === badgeId);
+                        return badge ? `<span class="user-badge" title="${badge.name}"><i class="${badge.icon}"></i></span>` : '';
+                    }).join('') : '';
+                    
+                    const userReaction = userReactedQuestions[q.id];
+                    const likeBtnClass = userReaction === 'likes' ? 'active' : '';
+                    const loveBtnClass = userReaction === 'loves' ? 'active' : '';
+
+                    let answersHtml = '';
+                    q.respuestas.forEach(a => {
+                        const answerUser = a.profiles || { username: a.user_name, badges: [], selected_avatar: 'initial' };
+                        const answerBadgesHtml = answerUser.badges ? answerUser.badges.map(badgeId => {
+                            const badge = availableBadges.find(b => b.id === badgeId);
+                            return badge ? `<span class="user-badge" title="${badge.name}"><i class="${badge.icon}"></i></span>` : '';
+                        }).join('') : '';
+
+                        const answerAvatarElement = document.createElement('div');
+                        answerAvatarElement.className = 'avatar';
+                        updateUserAvatar(answerAvatarElement, answerUser.selected_avatar, a.user_name);
+                        const answerAvatarHtml = answerAvatarElement.outerHTML;
+
+                        answersHtml += `
+                            <div class="answer" data-answer-id="${a.id}" data-user-id="${a.creado_por}">
+                                <div class="answer-header">
+                                    <div class="user-info">
+                                        ${answerAvatarHtml}
+                                        <span>${a.user_name}</span>
+                                        <div class="user-badges-container">${answerBadgesHtml}</div>
+                                    </div>
+                                    <span class="date">${getFormattedDate(a.created_at)}</span>
+                                </div>
+                                <p>${a.respuesta}</p>
+                                <button class="delete-answer-btn" data-answer-id="${a.id}" data-question-id="${q.id}" style="${a.creado_por !== currentUser.id ? 'display: none;' : ''}" title="Eliminar respuesta">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                                <div class="coin-btn-container" style="${a.creado_por === currentUser.id ? 'display: none;' : ''}">
+                                    <button class="coin-btn" data-type="answer" data-user-id="${a.creado_por}">🪙</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    const questionAvatarElement = document.createElement('div');
+                    questionAvatarElement.className = 'avatar';
+                    updateUserAvatar(questionAvatarElement, questionUser.selected_avatar, questionUser.username);
+                    const questionAvatarHtml = questionAvatarElement.outerHTML;
+                    
+                    questionElement.innerHTML = `
+                        <button class="delete-btn" data-id="${q.id}" style="${q.creado_por !== currentUser.id ? 'display: none;' : ''}" title="Eliminar pregunta">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        <div class="question-header">
+                            <div class="user-info">
+                                ${questionAvatarHtml}
+                                <span>${q.user_name}</span>
+                                <div class="user-badges-container">${questionBadgesHtml}</div>
+                            </div>
+                            <span class="date">${getFormattedDate(q.created_at)}</span>
+                        </div>
+                        <p class="question-content">${q.pregunta}</p>
+                        ${q.imagen_url ? `<img src="${q.imagen_url}" alt="Imagen de la pregunta" class="question-image">` : ''}
+                        
+                        <div class="reactions">
+                            <button class="reaction-btn ${likeBtnClass}" data-type="likes" data-question-id="${q.id}" ${userReaction ? 'disabled' : ''}>
+                                <i class="fas fa-thumbs-up"></i>
+                                <span>${q.likes}</span>
+                            </button>
+                            <button class="reaction-btn ${loveBtnClass}" data-type="loves" data-question-id="${q.id}" ${userReaction ? 'disabled' : ''}>
+                                <i class="fas fa-heart"></i>
+                                <span>${q.loves}</span>
+                            </button>
+                            <div class="reaction-container">
+                                <button class="coin-btn" data-type="question" data-user-id="${q.creado_por}" style="${q.creado_por === currentUser.id ? 'display: none;' : ''}" title="Recompensar con 🪙">🪙</button>
+                            </div>
+                        </div>
+
+                        <div class="interaction-count">
+                            <div class="interaction-item">
+                                <i class="fas fa-comment"></i>
+                                <span>${q.respuestas.length} respuestas</span>
+                            </div>
+                        </div>
+
+                        <div class="answers">
+                            <h3>Respuestas:</h3>
+                            ${answersHtml}
+                            <div class="add-answer">
+                                <button class="btn btn-secondary toggle-answer-form" data-question-id="${q.id}">
+                                    <i class="fas fa-comment-alt"></i> Responder
+                                </button>
+                                <form class="answer-form" id="answerForm-${q.id}" data-question-id="${q.id}">
+                                    <textarea name="answerText" placeholder="Escribe tu respuesta aquí..." required></textarea>
+                                    <button type="submit" class="btn">Enviar Respuesta</button>
+                                </form>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(questionElement);
+                });
+            }
+            renderPagination(questions.length);
+        }
+
+        async function createNewQuestion(questionText, imageUrl) {
+            const { error } = await supabase
+                .from('preguntas')
+                .insert([
+                    { pregunta: questionText, imagen_url: imageUrl, creado_por: currentUser.id, user_name: currentUser.username }
+                ]);
+            if (error) {
+                showNotification(`Error al publicar pregunta: ${error.message}`, true);
+            } else {
+                const { data: newBalance, error: funcError } = await supabase.rpc('add_coins_for_post', { 
+                    _user_id: currentUser.id, 
+                    _coins_to_add: COINS_FOR_QUESTION 
+                });
+                if (funcError) {
+                    console.error('Error al llamar a la función:', funcError);
+                    showNotification('Error al sumar monedas.', true);
+                } else {
+                    currentUser.coins = newBalance;
+                    updateProfileUI();
+                    showNotification('¡Pregunta publicada con éxito!');
+                    document.getElementById('questionText').value = '';
+                    document.getElementById('questionImage').value = '';
+                    document.getElementById('imagePreview').style.display = 'none';
+                    renderQuestions();
+                }
+            }
+        }
+        
+        async function createNewAnswer(questionId, answerText) {
+            const { error } = await supabase
+                .from('respuestas')
+                .insert([
+                    { respuesta: answerText, pregunta_id: questionId, creado_por: currentUser.id, user_name: currentUser.username }
+                ]);
+            if (error) {
+                showNotification(`Error al enviar respuesta: ${error.message}`, true);
+            } else {
+                const { data: newBalance, error: funcError } = await supabase.rpc('add_coins_for_post', { 
+                    _user_id: currentUser.id, 
+                    _coins_to_add: COINS_FOR_ANSWER 
+                });
+                if (funcError) {
+                    console.error('Error al llamar a la función:', funcError);
+                    showNotification('Error al sumar monedas.', true);
+                } else {
+                    currentUser.coins = newBalance;
+                    updateProfileUI();
+                    showNotification('¡Respuesta enviada!');
+                    renderQuestions();
+                }
+            }
+        }
+        
+        async function updateReaction(questionId, reactionType) {
+            // Verificar si el usuario ya ha reaccionado
+            const { data: existingReaction, error: reactionError } = await supabase
+                .from('user_reactions')
+                .select('*')
+                .eq('user_id', currentUser.id)
+                .eq('question_id', questionId);
+
+            if (reactionError) {
+                showNotification('Error al verificar reacciones.', true);
+                return;
+            }
+
+            if (existingReaction.length > 0) {
+                showNotification('Ya has reaccionado a esta pregunta.', true);
+                return;
+            }
+
+            // Incrementar el contador de la pregunta
+            const { data: questionData, error: qError } = await supabase
+                .from('preguntas')
+                .select('likes, loves')
+                .eq('id', questionId)
+                .single();
+
+            if (qError) {
+                showNotification('Error al actualizar las reacciones.', true);
+                return;
+            }
+            
+            const newCount = questionData[reactionType] + 1;
+            const { error: updateError } = await supabase
+                .from('preguntas')
+                .update({ [reactionType]: newCount })
+                .eq('id', questionId);
+            
+            if (updateError) {
+                showNotification('Error al actualizar las reacciones.', true);
+                return;
+            }
+
+            // Registrar la reacción del usuario
+            const { error: insertError } = await supabase
+                .from('user_reactions')
+                .insert([{ user_id: currentUser.id, question_id: questionId, reaction_type: reactionType }]);
+
+            if (insertError) {
+                showNotification('Error al registrar tu reacción.', true);
+                return;
+            }
+            
+            // Actualizar puntos del usuario en Supabase y localmente
+            const { error: pointsError } = await supabase
+                .from('profiles')
+                .update({ reaction_points: currentUser.reaction_points + REACTION_POINTS_PER_REACTION })
+                .eq('id', currentUser.id);
+            
+            if (pointsError) {
+                showNotification('Error al sumar puntos de reacción.', true);
+            } else {
+                currentUser.reaction_points += REACTION_POINTS_PER_REACTION;
+                updateProfileUI();
+                showNotification('¡Reacción registrada!');
+                renderQuestions();
+            }
+        }
+
+        async function giveTip(recipientId) {
+            const { data: success, error: funcError } = await supabase.rpc('give_tip_and_update_coins', { 
+                _sender_id: currentUser.id, 
+                _recipient_id: recipientId, 
+                _coins_to_tip: COINS_FOR_TIP 
+            });
+
+            if (funcError) {
+                console.error('Error al llamar a la función:', funcError);
+                showNotification('Error en la propina.', true);
+            } else if (success) {
+                currentUser.coins -= COINS_FOR_TIP;
+                updateProfileUI();
+                showNotification(`¡Has dado ${COINS_FOR_TIP} monedas!`);
+            } else {
+                showNotification('No tienes suficientes monedas para dar una propina.', true);
+            }
+        }
+
+        async function deleteQuestion(questionId) {
+            if (!confirm('¿Estás seguro de que quieres eliminar esta pregunta?')) return;
+            const { error } = await supabase.from('preguntas').delete().eq('id', questionId);
+            if (error) {
+                showNotification(`Error al eliminar pregunta: ${error.message}`, true);
+            } else {
+                showNotification('¡Pregunta eliminada con éxito!');
+                renderQuestions();
+            }
+        }
+
+        async function deleteAnswer(answerId) {
+            if (!confirm('¿Estás seguro de que quieres eliminar esta respuesta?')) return;
+            const { error } = await supabase.from('respuestas').delete().eq('id', answerId);
+            if (error) {
+                showNotification(`Error al eliminar respuesta: ${error.message}`, true);
+            } else {
+                showNotification('¡Respuesta eliminada con éxito!');
+                renderQuestions();
+            }
+        }
+        
+        // Funciones de navegación y paginación
+        function renderPagination(totalItems) {
+            const paginationContainer = document.getElementById('pagination');
+            paginationContainer.innerHTML = '';
+            const totalPages = Math.ceil(totalItems / PAGE_SIZE);
+            if (totalPages > 1) {
+                for (let i = 1; i <= totalPages; i++) {
+                    const button = document.createElement('button');
+                    button.textContent = i;
+                    button.className = `pagination-btn ${i === currentPage ? 'active' : ''}`;
+                    button.addEventListener('click', () => {
+                        currentPage = i;
+                        renderQuestions();
+                    });
+                    paginationContainer.appendChild(button);
+                }
+            }
+        }
+        
+        // Validaciones de formulario
+        function validateEmail(email) {
+            const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+            return re.test(String(email).toLowerCase());
+        }
+
+        // --- Event Listeners ---
+        document.getElementById('askForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const questionText = document.getElementById('questionText').value;
+            const imageFile = document.getElementById('questionImage').files[0];
+            const textError = document.getElementById('questionTextError');
+            
+            if (questionText.length < MIN_QUESTION_LENGTH) {
+                textError.textContent = `La pregunta debe tener al menos ${MIN_QUESTION_LENGTH} caracteres.`;
+                textError.style.display = 'block';
+                return;
+            } else {
+                textError.style.display = 'none';
+            }
+
+            if (imageFile) {
+                const { data, error } = await supabase.storage.from('images').upload(`${currentUser.id}/${Date.now()}_${imageFile.name}`, imageFile);
+                if (error) {
+                    showNotification(`Error al subir imagen: ${error.message}`, true);
+                    return;
+                }
+                const imageUrl = `${SUPABASE_URL}/storage/v1/object/public/${data.path}`;
+                await createNewQuestion(questionText, imageUrl);
+            } else {
+                await createNewQuestion(questionText, null);
+            }
+        });
+
+        document.getElementById('questionsContainer').addEventListener('click', async (e) => {
+            if (e.target.closest('.toggle-answer-form')) {
+                const button = e.target.closest('.toggle-answer-form');
+                const form = document.getElementById(`answerForm-${button.dataset.questionId}`);
+                form.style.display = form.style.display === 'block' ? 'none' : 'block';
+            }
+            if (e.target.closest('.delete-btn')) {
+                const questionId = e.target.closest('.delete-btn').dataset.id;
+                await deleteQuestion(questionId);
+            }
+            if (e.target.closest('.delete-answer-btn')) {
+                const answerId = e.target.closest('.delete-answer-btn').dataset.answerId;
+                await deleteAnswer(answerId);
+            }
+        });
+
+        document.getElementById('questionsContainer').addEventListener('submit', async (e) => {
+            if (e.target.classList.contains('answer-form')) {
+                e.preventDefault();
+                const questionId = e.target.dataset.questionId;
+                const answerText = e.target.querySelector('textarea[name="answerText"]').value;
+                
+                if (answerText.length < MIN_ANSWER_LENGTH) {
+                    showNotification(`La respuesta debe tener al menos ${MIN_ANSWER_LENGTH} caracteres.`, true);
+                    return;
+                }
+
+                await createNewAnswer(questionId, answerText);
+                e.target.style.display = 'none';
+            }
+        });
+
+        document.getElementById('questionsContainer').addEventListener('click', async (e) => {
+            if (e.target.closest('.reaction-btn')) {
+                const btn = e.target.closest('.reaction-btn');
+                const questionId = btn.dataset.questionId;
+                const reactionType = btn.dataset.type;
+                await updateReaction(questionId, reactionType);
+            }
+            if (e.target.closest('.coin-btn')) {
+                const btn = e.target.closest('.coin-btn');
+                const recipientId = btn.dataset.userId;
+                await giveTip(recipientId);
+            }
+        });
+
+        document.getElementById('userForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const userName = document.getElementById('userName').value;
+            const { error } = await supabase.from('profiles').update({ username: userName }).eq('id', currentUser.id);
+
+            if (error) {
+                showNotification('Error al actualizar el perfil.', true);
+            } else {
+                currentUser.username = userName;
+                updateProfileUI();
+                showNotification('¡Perfil actualizado!');
+                renderQuestions();
+            }
+        });
+        
+        // Navegación y Vistas
+        document.querySelectorAll('.view-option').forEach(option => {
+            option.addEventListener('click', () => {
+                document.querySelector('.view-option.active').classList.remove('active');
+                option.classList.add('active');
+                currentView = option.dataset.view;
+                currentPage = 1;
+                renderQuestions();
+            });
+        });
+        
+        document.querySelectorAll('.mobile-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const sections = {
+                    'questions': 'questionsSection',
+                    'ask': 'askSection',
+                    'profile': 'userSection',
+                    'my-questions': 'questionsSection'
+                };
+                
+                const targetView = tab.dataset.tab === 'my-questions' ? 'my-questions' : 'recent';
+                
+                document.querySelectorAll('.mobile-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                document.querySelectorAll('.main-content section, .questions-section').forEach(section => {
+                    section.classList.remove('active');
+                    section.style.display = 'none';
+                });
+                
+                const targetSection = document.getElementById(sections[tab.dataset.tab]);
+                if (targetSection) {
+                    targetSection.classList.add('active');
+                    targetSection.style.display = 'block';
+                }
+                
+                currentView = targetView;
+                currentPage = 1;
+                renderQuestions();
+            });
+        });
+
+        document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+            const mobileTabs = document.querySelector('.mobile-tabs');
+            mobileTabs.style.display = mobileTabs.style.display === 'flex' ? 'none' : 'flex';
+        });
+
+        document.getElementById('questionImage').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            const preview = document.getElementById('imagePreview');
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.style.display = 'none';
+            }
+        });
+        
+        document.getElementById('notificationBtn').addEventListener('click', () => {
+            const panel = document.getElementById('notificationPanel');
+            panel.classList.toggle('show');
+            if (panel.classList.contains('show')) {
+                loadNotifications();
+            }
+        });
+
+        // Inicializar la aplicación
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeUser();
+            renderQuestions();
+        });
+    </script>
+</body>
+</html>
